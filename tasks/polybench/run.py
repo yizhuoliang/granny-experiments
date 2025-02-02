@@ -1,4 +1,5 @@
 from faasmctl.util.flush import flush_workers
+from faasmctl.util.config import get_faasm_worker_ips
 from faasmctl.util.planner import reset as reset_planner
 from invoke import task
 from os import makedirs
@@ -66,7 +67,7 @@ def granny(ctx, bench=None, repeats=3):
     """
     Run the PolyBench/C microbenchmark with Granny (i.e. WASM)
     """
-    reset_planner()
+    reset_planner(len(get_faasm_worker_ips()))
     # TODO(planner): uncomment when planner is upstreamed
     # wait_for_planner_workers(num_workers)
 
@@ -84,7 +85,6 @@ def granny(ctx, bench=None, repeats=3):
             msg = {
                 "user": POLYBENCH_USER,
                 "function": poly_bench,
-                "async": True,
             }
             result_json = post_async_msg_and_get_result_json(msg)
             actual_time = get_faasm_exec_time_from_json(result_json)
@@ -92,6 +92,8 @@ def granny(ctx, bench=None, repeats=3):
                 _write_csv_line(
                     csv_name, (run_num - NUM_WARMUP_RUNS), actual_time
                 )
+                for result_json in result_json:
+                    print(f"function: {poly_bench}, start: {result_json["start_ts"]}, end: {result_json["finish_ts"]}")
 
             print("Actual time: {}".format(actual_time))
             sleep(2)
