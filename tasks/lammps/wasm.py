@@ -24,4 +24,5 @@ def upload(ctx):
 
     upload_wasm(wasm_file_details)
 
-    lammps_data_upload(ctx, ["compute", "compute-xl", "network"])
+    lammps_data_upload(ctx, ["compute", "compute-xl", "compute-xxl", "network", "eam",
+                             "chute", "rhodo", "chain"])

@@ -50,7 +50,43 @@ LAMMPS_SIM_CHUNK_SIZE = 2e4
 LAMMPS_SIM_WORKLOAD_CONFIGS = {
     "compute": {
         "data_file": "compute",
-        "num_iterations": 10,
+        "num_iterations": 3,
+        "num_net_loops": 0,
+        "chunk_size": 0,
+    },
+    "compute-xl": {
+        "data_file": "compute-xl",
+        "num_iterations": 3,
+        "num_net_loops": 0,
+        "chunk_size": 0,
+    },
+    "compute-xxl": {
+        "data_file": "compute-xxl",
+        "num_iterations": 3,
+        "num_net_loops": 0,
+        "chunk_size": 0,
+    },
+    "eam": {
+        "data_file": "eam",
+        "num_iterations": 3,
+        "num_net_loops": 0,
+        "chunk_size": 0,
+    },
+    "chute": {
+        "data_file": "chute",
+        "num_iterations": 3,
+        "num_net_loops": 0,
+        "chunk_size": 0,
+    },
+    "rhodo": {
+        "data_file": "rhodo",
+        "num_iterations": 3,
+        "num_net_loops": 0,
+        "chunk_size": 0,
+    },
+    "chain": {
+        "data_file": "chain",
+        "num_iterations": 3,
         "num_net_loops": 0,
         "chunk_size": 0,
     },
@@ -165,11 +201,19 @@ def lammps_data_upload(ctx, bench):
         # Upload all data corresponding to the benchmark
         for data in _bench["data"]:
             file_name = data.split("/")[-1]
-            host_path = join(LAMMPS_DOCKER_DIR, data + ".faasm")
+            # Temprory change, trying some input workloads that wasn't tried before
+            exceptions = {"Cu_u3.eam", "data.chute", "data.chain", "data.rhodo"}
+            print(data)
+            if file_name not in exceptions:
+                host_path = join(LAMMPS_DOCKER_DIR, data + ".faasm")
+            else:
+                host_path = join(LAMMPS_DOCKER_DIR, data)
             faasm_path = join(LAMMPS_FAASM_DATA_PREFIX, file_name)
 
             file_details.append(
                 {"host_path": host_path, "faasm_path": faasm_path}
             )
+        print(f"Files trying to upload for bench '{b}':")
+        print(file_details)
 
     upload_files(file_details)

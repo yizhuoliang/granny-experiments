@@ -25,7 +25,8 @@ from tasks.util.openmpi import (
 from time import sleep, time
 
 # Parameters tuning the experiment runs
-NPROCS_EXPERIMENT = list(range(2, 17))
+# NPROCS_EXPERIMENT = list(range(2, 17))
+NPROCS_EXPERIMENT = {1, 13, 26}
 
 
 def _init_csv_file(csv_name):
@@ -90,8 +91,10 @@ def wasm(ctx, w, repeats=1):
                         chunk_size=workload_config["chunk_size"],
                     ),
                 }
-                result_json = post_async_msg_and_get_result_json(msg)
-                actual_time = get_faasm_exec_time_from_json(result_json)
+                results_json = post_async_msg_and_get_result_json(msg)
+                for result_json in results_json:
+                    print(f"workload: {workload}, start: {result_json["start_ts"]}, end: {result_json["finish_ts"]}")
+                actual_time = get_faasm_exec_time_from_json(results_json)
                 _write_csv_line(csv_name, nproc, nrep, actual_time)
 
 
