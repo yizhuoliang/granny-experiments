@@ -10,16 +10,16 @@ from tasks.util.env import (
     get_version,
 )
 
-TMP_IMAGE_NAME = "granny_build_container"
+TMP_CONTAINER_NAME = "granny_build_container"
 
 
-def start_container(image_name):
+def start_build_container(container_name):
     """
     Start build container in the background
     """
     docker_cmd = [
         "docker run -d",
-        "--name {}".format(TMP_IMAGE_NAME),
+        "--name {}".format(container_name),
         "{}/{}:{}".format(ACR_NAME, FAABRIC_EXP_IMAGE_NAME, get_version()),
     ]
     docker_cmd = " ".join(docker_cmd)
@@ -27,8 +27,8 @@ def start_container(image_name):
     run(docker_cmd, check=True, shell=True, cwd=PROJ_ROOT)
 
 
-def stop_container(image_name):
-    docker_cmd = "docker rm -f {}".format(TMP_IMAGE_NAME)
+def stop_build_container(container_name):
+    docker_cmd = "docker rm -f {}".format(container_name)
     print(docker_cmd)
     run(docker_cmd, check=True, shell=True, cwd=PROJ_ROOT)
 
@@ -41,7 +41,7 @@ def upload_wasm(wasm_file_details):
     method copies the .wasm files from the `experiment-makespan` docker image
     """
     # First, start the build container
-    start_container(TMP_IMAGE_NAME)
+    start_build_container(TMP_CONTAINER_NAME)
 
     # Upload wasm
     tmp_host_wasm = "/tmp/function.wasm"
@@ -50,7 +50,7 @@ def upload_wasm(wasm_file_details):
         try:
             run(
                 docker_cp_cmd.format(
-                    TMP_IMAGE_NAME, file_details["wasm_file"], tmp_host_wasm
+                    TMP_CONTAINER_NAME, file_details["wasm_file"], tmp_host_wasm
                 ),
                 shell=True,
                 check=True,
@@ -62,7 +62,7 @@ def upload_wasm(wasm_file_details):
                     e
                 )
             )
-            stop_container(TMP_IMAGE_NAME)
+            stop_build_container(TMP_CONTAINER_NAME)
             raise e
 
         wasm_file = tmp_host_wasm
@@ -76,10 +76,10 @@ def upload_wasm(wasm_file_details):
                 faasmctl_upload_wasm(user, func, wasm_file)
             except Exception as e:
                 print(e)
-                stop_container(TMP_IMAGE_NAME)
+                stop_build_container(TMP_CONTAINER_NAME)
 
     # Lastly, remove the container
-    stop_container(TMP_IMAGE_NAME)
+    stop_build_container(TMP_CONTAINER_NAME)
 
 
 def upload_files(file_details):
@@ -91,7 +91,7 @@ def upload_files(file_details):
     uploads them to the cluster
     """
     # First, start the build container
-    start_container(TMP_IMAGE_NAME)
+    start_build_container(TMP_CONTAINER_NAME)
 
     # Upload wasm
     tmp_host_file = "/tmp/faasm.file"
@@ -100,7 +100,7 @@ def upload_files(file_details):
         try:
             run(
                 docker_cp_cmd.format(
-                    TMP_IMAGE_NAME, file_details["host_path"], tmp_host_file
+                    TMP_CONTAINER_NAME, file_details["host_path"], tmp_host_file
                 ),
                 shell=True,
                 check=True,
@@ -116,14 +116,14 @@ def upload_files(file_details):
                     e
                 )
             )
-            stop_container(TMP_IMAGE_NAME)
+            stop_build_container(TMP_CONTAINER_NAME)
             raise e
 
         try:
             faasmctl_upload_file(tmp_host_file, file_details["faasm_path"])
         except Exception as e:
             print(e)
-            stop_container(TMP_IMAGE_NAME)
+            stop_build_container(TMP_CONTAINER_NAME)
 
     # Lastly, remove the container
-    stop_container(TMP_IMAGE_NAME)
+    stop_build_container(TMP_CONTAINER_NAME)
