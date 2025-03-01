@@ -63,7 +63,7 @@ def _get_poly_benchmarks(bench):
 
 
 @task(default=True)
-def granny(ctx, bench=None, repeats=3):
+def wasm(ctx, bench=None, repeats=3):
     """
     Run the PolyBench/C microbenchmark with Granny (i.e. WASM)
     """
