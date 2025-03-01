@@ -15,6 +15,7 @@ from tasks.migration import ns as migration_ns
 from tasks.motivation import ns as motivation_ns
 from tasks.openmpi import ns as openmpi_ns
 from tasks.polybench import ns as polybench_ns
+from tasks.overlap import ns as overlap_ns
 
 
 logging.getLogger().setLevel(logging.DEBUG)
@@ -34,3 +35,4 @@ ns.add_collection(migration_ns, name="migration")
 ns.add_collection(motivation_ns, name="motivation")
 ns.add_collection(openmpi_ns, name="openmpi")
 ns.add_collection(polybench_ns, name="polybench")
+ns.add_collection(overlap_ns, name="overlap")
