@@ -2,11 +2,15 @@ from base64 import b64encode
 from os.path import join
 from tasks.util.env import EXAMPLES_DOCKER_DIR, PLOTS_ROOT, RESULTS_DIR
 from tasks.util.upload import upload_files
+from faasmctl.util.upload import (
+    upload_file as faasmctl_upload_file,
+    upload_wasm as faasmctl_upload_wasm,
+)
 
 LAMMPS_PLOTS_DIR = join(PLOTS_ROOT, "lammps")
 LAMMPS_RESULTS_DIR = join(RESULTS_DIR, "lammps")
 
-LAMMPS_DOCKER_DIR = join(EXAMPLES_DOCKER_DIR, "lammps")
+LAMMPS_DOCKER_DIR = join(EXAMPLES_DOCKER_DIR, "lammps-migration-net")
 LAMMPS_MIGRATION_DOCKER_DIR = join(EXAMPLES_DOCKER_DIR, "lammps-migration")
 LAMMPS_MIGRATION_NET_DOCKER_DIR = join(
     EXAMPLES_DOCKER_DIR, "lammps-migration-net"
@@ -66,6 +70,12 @@ LAMMPS_SIM_WORKLOAD_CONFIGS = {
         "num_net_loops": 0,
         "chunk_size": 0,
     },
+    "lj-mem": {
+        "data_file": "lj-mem",
+        "num_iterations": 3,
+        "num_net_loops": 0,
+        "chunk_size": 0,
+    },
     "eam": {
         "data_file": "eam",
         "num_iterations": 3,
@@ -118,6 +128,7 @@ BENCHMARKS = {
     "compute": {"data": ["bench/in.lj"], "out_file": "compute"},
     "compute-xl": {"data": ["bench/in.lj-xl"], "out_file": "compute"},
     "compute-xxl": {"data": ["bench/in.lj-xxl"], "out_file": "compute"},
+    "lj-mem": {"data": ["bench/in.lj-mem"], "out_file": "lj-mem"},
     "controller": {
         "data": ["examples/controller/in.controller.wall"],
         "out_file": "network",
@@ -208,12 +219,19 @@ def lammps_data_upload(ctx, bench):
                 host_path = join(LAMMPS_DOCKER_DIR, data + ".faasm")
             else:
                 host_path = join(LAMMPS_DOCKER_DIR, data)
+
             faasm_path = join(LAMMPS_FAASM_DATA_PREFIX, file_name)
 
             file_details.append(
                 {"host_path": host_path, "faasm_path": faasm_path}
             )
-        print(f"Files trying to upload for bench '{b}':")
+        print(f"=====================\nFiles trying to upload for bench '{b}':")
         print(file_details)
+        print("=====================")
 
     upload_files(file_details)
+
+def lammps_data_upload_from_host(ctx, host_path):
+    file_name = host_path.split("/")[-1]
+    faasm_path = join(LAMMPS_FAASM_DATA_PREFIX, file_name)
+    faasmctl_upload_file(host_path, faasm_path)
