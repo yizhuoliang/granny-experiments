@@ -4,6 +4,7 @@ from tasks.util.lammps import (
     LAMMPS_FAASM_MIGRATION_NET_FUNC,
     LAMMPS_MIGRATION_NET_DOCKER_WASM,
     lammps_data_upload,
+    lammps_data_upload_from_host,
 )
 from tasks.util.upload import upload_wasm
 
@@ -24,5 +25,7 @@ def upload(ctx):
 
     upload_wasm(wasm_file_details)
 
-    lammps_data_upload(ctx, ["compute", "compute-xl", "compute-xxl", "network", "eam",
+    lammps_data_upload(ctx, ["compute", "compute-xl", "lj-mem", "network", "eam",
                              "chute", "rhodo", "chain"])
+    
+    lammps_data_upload_from_host(ctx, "/home/yliang/lammps-workloads/in.lj-mem")
