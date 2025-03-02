@@ -1,5 +1,5 @@
 from invoke import Collection
 
-from . import sched
+from . import sched, sched2
 
-ns = Collection(sched)
+ns = Collection(sched, sched2)
