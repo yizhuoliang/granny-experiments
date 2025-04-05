@@ -93,7 +93,7 @@ def wasm(ctx, bench=None, repeats=3):
                     csv_name, (run_num - NUM_WARMUP_RUNS), actual_time
                 )
                 for result_json in result_json:
-                    print(f"function: {poly_bench}, start: {result_json["start_ts"]}, end: {result_json["finish_ts"]}")
+                    print(f"function: {poly_bench}, start: {result_json['start_ts']}, end: {result_json['finish_ts']}")
 
             print("Actual time: {}".format(actual_time))
             sleep(2)
