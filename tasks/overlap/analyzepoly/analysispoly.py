@@ -316,7 +316,39 @@ def main():
     print("==============================================================\n")
 
     # --------------------------------------------------------------------------
-    # 9. Plot memory bandwidth by function and thread count (separate original and adjusted)
+    # 9. NEW: Compute averaged unadjusted per-thread memory bandwidth for each function
+    # --------------------------------------------------------------------------
+    # Group by function_name and calculate the mean of orig_per_thread_bw
+    avg_per_thread_bw = results_df.groupby('function_name')['orig_per_thread_bw'].mean().reset_index()
+    avg_per_thread_bw.rename(columns={'orig_per_thread_bw': 'avg_per_thread_bw'}, inplace=True)
+
+    # Add other summary statistics that might be useful
+    avg_per_thread_bw['min_per_thread_bw'] = results_df.groupby('function_name')['orig_per_thread_bw'].min().values
+    avg_per_thread_bw['max_per_thread_bw'] = results_df.groupby('function_name')['orig_per_thread_bw'].max().values
+    avg_per_thread_bw['std_per_thread_bw'] = results_df.groupby('function_name')['orig_per_thread_bw'].std().values
+
+    # Print averaged per-thread bandwidth per function
+    print("=== Averaged Unadjusted Per-Thread Memory Bandwidth (bytes/us) per Function ===")
+    print("Function".ljust(20) + "Avg Per-Thread BW".ljust(20) + "Min".ljust(10) + "Max".ljust(10) + "Std Dev")
+    print("-" * 70)
+    for idx, row in avg_per_thread_bw.iterrows():
+        func_name = row['function_name']
+        avg_bw = row['avg_per_thread_bw']
+        min_bw = row['min_per_thread_bw']
+        max_bw = row['max_per_thread_bw']
+        std_bw = row['std_per_thread_bw'] if not pd.isna(row['std_per_thread_bw']) else 0.0
+        
+        print(f"{func_name:<20}{avg_bw:<20.4f}{min_bw:<10.4f}{max_bw:<10.4f}{std_bw:.4f}")
+    
+    print("\n")
+
+    # Output to CSV
+    csv_filename = "averaged_per_thread_bandwidth.csv"
+    avg_per_thread_bw.to_csv(csv_filename, index=False)
+    print(f"Averaged per-thread bandwidth data saved to '{csv_filename}'")
+
+    # --------------------------------------------------------------------------
+    # 10. Plot memory bandwidth by function and thread count (separate original and adjusted)
     # --------------------------------------------------------------------------
 
     # Get unique function names and thread counts
