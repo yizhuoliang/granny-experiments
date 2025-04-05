@@ -93,7 +93,7 @@ def wasm(ctx, w, repeats=1):
                 }
                 results_json = post_async_msg_and_get_result_json(msg)
                 for result_json in results_json:
-                    print(f"workload: {workload}, start: {result_json["start_ts"]}, end: {result_json["finish_ts"]}")
+                    print(f"workload: {workload}, start: {result_json['start_ts']}, end: {result_json['finish_ts']}")
                 actual_time = get_faasm_exec_time_from_json(results_json)
                 _write_csv_line(csv_name, nproc, nrep, actual_time)
 
